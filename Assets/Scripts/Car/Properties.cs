@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class Properties : MonoBehaviour
 {
-    [SerializeField] private EnergyBoost _energyBoost;
+    [SerializeField] private EnergyBoostViewer _energyBoost;
     [SerializeField] private float _speed;
-    [SerializeField] private CarMovement _car;
+    [SerializeField] private Movement _car;
     [SerializeField] private CarBooster _booster;
-    [SerializeField] private RezultScreen _finishScreen;
+    [SerializeField] private RezultScreenViewer _finishScreen;
     [SerializeField] private Finish _finish;
 
     private WaitForSeconds _delay;
 
-    public EnergyBoost EnergyBoost => _energyBoost;
+    public EnergyBoostViewer EnergyBoost => _energyBoost;
     public CarBooster CarBooster => _booster;
     public Finish Finish => _finish;
     public float Speed => _speed;

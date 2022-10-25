@@ -6,7 +6,7 @@ public class CameraTracker : MonoBehaviour
 {
     [SerializeField] private Transform _player;
     [SerializeField] private float _pickupBoostOffset;
-    [SerializeField] private CarMovement _car;
+    [SerializeField] private Movement _car;
     [SerializeField] private CinemachineVirtualCamera _virtualCamera;
 
     private Vector3 _offset;
