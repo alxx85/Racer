@@ -9,7 +9,6 @@ using DG.Tweening;
 public class EnergyBoostViewer : MonoBehaviour
 {
     [SerializeField] private InputScreen _input;
-    [SerializeField] private CarBooster _carBooster;
     [SerializeField] private Slider _energyBar;
     [SerializeField] private float _maxEnergy;
 
@@ -25,18 +24,16 @@ public class EnergyBoostViewer : MonoBehaviour
     private const float Use = 1f;
     private const float DontUse = 0f;
     private const float DontShowPosition = 200f;
-    private const float CorrectedRate = 45f;
 
-    private void OnEnable()
+    private void Awake()
     {
         _input.ChangedPosition += OnTouch;
-        _carBooster.ChangedSpeed += OnChangedEnergyRate;
     }
 
     private void OnDisable()
     {
         _input.ChangedPosition -= OnTouch;
-        _carBooster.ChangedSpeed -= OnChangedEnergyRate;
+        Properties.Instance.ChangedSpeed -= OnChangedEnergyRate;
     }
 
     private void Start()
@@ -44,6 +41,7 @@ public class EnergyBoostViewer : MonoBehaviour
         _startPosition = transform.position;
         transform.position = new Vector3(_startPosition.x - DontShowPosition, _startPosition.y, _startPosition.z);
 
+        Properties.Instance.ChangedSpeed += OnChangedEnergyRate;
         _currentEnergy = _maxEnergy;
         _energyDownRate = Properties.Instance.Speed;
         _energyBar.maxValue = _maxEnergy;
@@ -55,10 +53,8 @@ public class EnergyBoostViewer : MonoBehaviour
         if (_isTouched)
             UseEnergy();
 
-        if (_changedEnergy == false)
-            return;
-
-        ChangeEnergy();
+        if (_changedEnergy)
+            ChangeEnergy();
     }
 
     public void SetActivate() => Activate();
@@ -90,12 +86,12 @@ public class EnergyBoostViewer : MonoBehaviour
 
     private void OnChangedEnergyRate(float degreaceRate)
     {
-        _energyDownRate -= degreaceRate;
+        _energyDownRate -= 1 / Properties.Instance.Speed;
     }
 
     private void UseEnergy()
     {
-        _currentEnergy -= _energyDownRate / CorrectedRate;
+        _currentEnergy -= 1 / Properties.Instance.Speed;
         _changedEnergy = true;
 
         if (_currentEnergy <= 0)

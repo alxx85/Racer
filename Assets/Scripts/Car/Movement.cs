@@ -1,4 +1,6 @@
+using DG.Tweening;
 using Dreamteck.Splines;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,14 +14,16 @@ public class Movement : MonoBehaviour
     [SerializeField] private InputScreen _inputs;
 
     private SplineFollower _splineFollower;
-    private float _startSpeed;
+    private float _moveUpSpeed = 5f;
     private bool _isFlying = false;
     private float _currentAngleRotation;
     private bool _isTouched;
     private CarBooster _booster;
-    private float _currentWingSize;
+    private float _pickupBoosts = 0f;
 
     private const float PhysicCoefficient = 2.0f;
+    private const float AngleFinishRotate = 168f;
+    private const float RotateSpeed = 1f;
 
     public event UnityAction OnEndRoad;
 
@@ -28,22 +32,23 @@ public class Movement : MonoBehaviour
         _splineFollower = GetComponent<SplineFollower>();
         _booster = Properties.Instance.CarBooster;
         _splineFollower.followSpeed = Properties.Instance.Speed;
-        _startSpeed = Properties.Instance.Speed;
     }
 
     private void OnEnable()
     {
         _inputs.ChangedPosition += OnChangeDirection;
-        _booster.ChangedSpeed += OnChangedSpeed;
+        Properties.Instance.ChangedSpeed += OnChangedSpeed;
         _splineFollower.onEndReached += OnAirStart;
+        Properties.Instance.Finished += OnFinished;
     }
 
     private void OnDisable()
     {
         _inputs.ChangedPosition -= OnChangeDirection;
-        Properties.Instance.EnergyBoost.OnUseEnergy -= OnChangeDirection;
-        _booster.ChangedSpeed -= OnChangedSpeed;
+        Properties.Instance.ChangedSpeed -= OnChangedSpeed;
         _splineFollower.onEndReached -= OnAirStart;
+        Properties.Instance.Finished -= OnFinished;
+        Properties.Instance.EnergyBoost.OnUseEnergy -= OnChangeDirection;
     }
 
     private void Update()
@@ -63,9 +68,11 @@ public class Movement : MonoBehaviour
         }
     }
 
-    public void StopMove()
+    public void OnFinished()
     {
         _isFlying = false;
+        //StartCoroutine(FinishRotate());
+        FinishRotate();
     }
 
     private void OnAirStart(double index)
@@ -73,7 +80,6 @@ public class Movement : MonoBehaviour
         _splineFollower.enabled = false;
         _carBody.localPosition = Vector3.zero;
         _carBody.localRotation = Quaternion.identity;
-        _currentWingSize = _booster.WingSize;
         _isFlying = true;
         ChangeInput();
         OnEndRoad?.Invoke();
@@ -89,15 +95,15 @@ public class Movement : MonoBehaviour
     private void MoveUp()
     {
         if (transform.rotation.x * Mathf.Rad2Deg > -_maxFlyingAngle)
-            transform.Rotate(Vector3.right, Physics.gravity.y * Time.deltaTime * (Properties.Instance.Speed - _startSpeed));
+            transform.Rotate(Vector3.right, Physics.gravity.y * Time.deltaTime * (_moveUpSpeed * _pickupBoosts));
     }
 
     private void FlightPhysics()
     {
         Vector3 gravity = Physics.gravity * Time.deltaTime;
-        transform.Translate(gravity);
+        transform.Translate(gravity * PhysicCoefficient);
         
-        if (transform.rotation.x < _currentWingSize * -Mathf.Deg2Rad)
+        if (transform.rotation.x < _moveUpSpeed * -Mathf.Deg2Rad)
         {
             transform.Rotate(Vector3.left, gravity.y * PhysicCoefficient);
         }
@@ -105,8 +111,8 @@ public class Movement : MonoBehaviour
 
     private void OnChangedSpeed(float speed)
     {
-        Properties.Instance.AddSpeed(speed);
         _splineFollower.followSpeed = Properties.Instance.Speed;
+        _pickupBoosts++;
     }
 
     private void ChangePosition()
@@ -162,5 +168,18 @@ public class Movement : MonoBehaviour
     {
         FlightPhysics();
         transform.Translate(Vector3.forward * Properties.Instance.Speed * Time.deltaTime);
+    }
+
+    private void FinishRotate()
+    {
+        BoxCollider collider = _carBody.GetComponent<BoxCollider>();
+        float carLenght = collider.bounds.size.z / 2;
+        collider.enabled = false;
+
+        Vector3 jumpHeight = new Vector3(_carBody.localPosition.x, carLenght, _carBody.localPosition.z);
+        Vector3 rotationPosition = new Vector3(AngleFinishRotate, 0, 0);
+        _carBody.DOLocalMove(jumpHeight, 0.3f).SetLoops(1);
+        _carBody.DOLocalRotate(rotationPosition, RotateSpeed).SetLoops(1);
+        _carBody.DOLocalMove(jumpHeight/2, 0.3f).SetLoops(1).SetDelay(0.4f);
     }
 }

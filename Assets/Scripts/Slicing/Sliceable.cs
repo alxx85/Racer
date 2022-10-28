@@ -9,9 +9,10 @@ public class Sliceable : MonoBehaviour
 
 	public event UnityAction<Vector3> Sliced;
 
-	void OnTriggerEnter(Collider other)
+	private void OnTriggerEnter(Collider other)
 	{
 		_knife = other.gameObject.GetComponent<Knife>();
+
 		if (_knife == null)
 			return;
 
@@ -24,8 +25,8 @@ public class Sliceable : MonoBehaviour
 			return;
 
         Cut(_knife);
-
 		SliceTextViewer viewer = other.GetComponent<SliceTextViewer>();
+
 		if (viewer != null)
 			viewer.Show();
     }
@@ -33,7 +34,6 @@ public class Sliceable : MonoBehaviour
     private void Cut(Knife knife)
 	{
 		Plane plane = new Plane(knife.BladeDirection, _point);
-
 		var sliceable = GetComponent<IBzSliceable>();
 		
 		if (sliceable == null)

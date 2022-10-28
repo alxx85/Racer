@@ -20,7 +20,7 @@ public class RezultScreenViewer : MonoBehaviour
         _continueButton.onClick.RemoveListener(Continue);
     }
 
-    void Start()
+    private void Start()
     {
         _startPosition = transform.position;
         transform.position = new Vector3(-Screen.width, _startPosition.y, _startPosition.z);

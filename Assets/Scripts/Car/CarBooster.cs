@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 
 public class CarBooster : MonoBehaviour
 {
@@ -11,7 +10,8 @@ public class CarBooster : MonoBehaviour
 
     public float WingSize => _wings.localScale.x;
 
-    public event UnityAction<float> ChangedSpeed;
+    private const float MaxFire = 0.12f;
+    private const float MinFire = 0.08f;
     
     public void AddWing(float size)
     {
@@ -26,15 +26,15 @@ public class CarBooster : MonoBehaviour
 
         if (_currentAddingRockets <= _rockets.Length)
             _currentAddingRockets++;
-        
-        ChangedSpeed?.Invoke(speed);
+
+        Properties.Instance.AddSpeed(speed);
     }
 
     public void MaxFireOn()
     {
         foreach (var fireRocket in _fireRockets)
         {
-            fireRocket.startLifetime = 0.1f;
+            fireRocket.startLifetime = MaxFire;
         }
     }
 
@@ -42,7 +42,7 @@ public class CarBooster : MonoBehaviour
     {
         foreach (var fireRocket in _fireRockets)
         {
-            fireRocket.startLifetime = 0.08f;
+            fireRocket.startLifetime = MinFire;
         }
     }
 }

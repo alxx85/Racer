@@ -6,11 +6,12 @@ public class SliceTextViewer : MonoBehaviour
     [SerializeField] private float _maxDistance;
 
     private Vector3 _currentPosition;
+    private float _factor = 1.5f;
 
     public void Show()
     {
-        float zPosition = Random.Range(-1f, 1f);
-        float yPosition = 1 - Mathf.Abs(zPosition);
+        float zPosition = Random.Range(-_factor, _factor);
+        float yPosition = (_maxDistance - Mathf.Abs(zPosition)) / _factor;
         _currentPosition = new Vector3(0, yPosition, zPosition);
 
         var text = Instantiate(_sliceText);

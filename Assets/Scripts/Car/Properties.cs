@@ -1,11 +1,11 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Properties : MonoBehaviour
 {
     [SerializeField] private EnergyBoostViewer _energyBoost;
     [SerializeField] private float _speed;
-    [SerializeField] private Movement _car;
     [SerializeField] private CarBooster _booster;
     [SerializeField] private RezultScreenViewer _finishScreen;
     [SerializeField] private Finish _finish;
@@ -17,6 +17,9 @@ public class Properties : MonoBehaviour
     public Finish Finish => _finish;
     public float Speed => _speed;
 
+    public event UnityAction<float> ChangedSpeed;
+    public event UnityAction Finished;
+    
     public static Properties Instance;
 
     private void Awake()
@@ -30,11 +33,12 @@ public class Properties : MonoBehaviour
     public void AddSpeed(float speed)
     {
         _speed += speed;
+        ChangedSpeed?.Invoke(_speed);
     }
 
     public void Finishes(WaitForSeconds delay)
     {
-        _car.StopMove();
+        Finished?.Invoke();
         _delay = delay;
         StartCoroutine(ShowFinishedScreen());
     }
@@ -42,7 +46,6 @@ public class Properties : MonoBehaviour
     private IEnumerator ShowFinishedScreen()
     {
         yield return _delay;
-
         _finishScreen.Show();
     }
 }

@@ -22,7 +22,6 @@ public class Finish : MonoBehaviour
     private IEnumerator StartVFX()
     {
         Properties.Instance.Finishes(_delay);
-
         yield return _delay;
 
         foreach (var vfx in _vfxFinished)

@@ -14,6 +14,11 @@ public class SliceableAction : MonoBehaviour
         _sliceable.Sliced += OnSliced;
     }
 
+    private void OnDestroy()
+    {
+        _sliceable.Sliced -= OnSliced;
+    }
+
     private void Start()
     {
         if (_isActive == true)
